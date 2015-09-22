@@ -1,0 +1,30 @@
+{
+	"ImportPath": "github.com/ahmetalpbalkan/azurefile-dockervolumedriver",
+	"GoVersion": "go1.5",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Azure/azure-sdk-for-go/storage",
+			"Comment": "v1.2-240-g240095c",
+			"Rev": "240095c26bb0971427336065fbda709acd5b9b5d"
+		},
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.7",
+			"Rev": "418b41d23a1bf978c06faea5313ba194650ac088"
+		},
+		{
+			"ImportPath": "github.com/calavera/dkvolume",
+			"Rev": "b8a36bf96d69f40db01804663f2425020a311973"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/pkg/listenbuffer",
+			"Comment": "v1.4.1-6346-gb0dc111",
+			"Rev": "b0dc11127ef4fc20261ccc0db03a16b17f7f91c4"
+		},
+		{
+			"ImportPath": "github.com/docker/libcontainer/user",
+			"Comment": "v2.2.1-23-g83a102c",
+			"Rev": "83a102cc68a09d890cce3b6c2e5c14c49e6373a0"
+		}
+	]
+}
