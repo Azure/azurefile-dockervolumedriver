@@ -10,7 +10,7 @@ import (
 const (
 	volumeDriverName = "azurefile"
 	mountpoint       = "/var/run/docker/volumedriver/azurefile"
-	metadataRoot     = "/etc/docker/plugins/azurefile/volumes/"
+	metadataRoot     = "/etc/docker/plugins/azurefile/volumes"
 )
 
 var (
