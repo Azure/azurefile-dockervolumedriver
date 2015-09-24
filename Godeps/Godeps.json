@@ -13,8 +13,8 @@
 			"Rev": "418b41d23a1bf978c06faea5313ba194650ac088"
 		},
 		{
-			"ImportPath": "github.com/calavera/dkvolume",
-			"Rev": "b8a36bf96d69f40db01804663f2425020a311973"
+			"ImportPath": "github.com/ahmetalpbalkan/dkvolume",
+			"Rev": "ea7fb74b79b3e8c802382ad2d3f1941de9230787"
 		},
 		{
 			"ImportPath": "github.com/docker/docker/pkg/listenbuffer",

@@ -21,40 +21,65 @@ const (
 
 	activatePath    = "/Plugin.Activate"
 	createPath      = "/VolumeDriver.Create"
-	remotePath      = "/VolumeDriver.Remove"
+	removePath      = "/VolumeDriver.Remove"
 	hostVirtualPath = "/VolumeDriver.Path"
 	mountPath       = "/VolumeDriver.Mount"
 	unmountPath     = "/VolumeDriver.Unmount"
 )
 
-// Request is the structure that docker's requests are deserialized to.
-type Request struct {
-	Name    string
-	Options map[string]string `json:"Opts,omitempty"`
-}
-
-// Response is the strucutre that the plugin's responses are serialized to.
-type Response struct {
-	Mountpoint string
-	Err        string
-}
-
 // Driver represent the interface a driver must fulfill.
 type Driver interface {
-	Create(Request) Response
-	Remove(Request) Response
-	Path(Request) Response
-	Mount(Request) Response
-	Unmount(Request) Response
+	Create(CreateRequest) (CreateResponse, error)
+	Remove(RemoveRequest) (RemoveResponse, error)
+	Path(PathRequest) (PathResponse, error)
+	Mount(MountRequest) (MountResponse, error)
+	Unmount(UnmountRequest) (UnmountResponse, error)
 }
+
+type errorResponse struct {
+	Err string `json:"Err"`
+}
+
+type CreateRequest struct {
+	Name    string            `json:"Name"`
+	Options map[string]string `json:"Opts"`
+}
+
+type CreateResponse struct{}
+
+type RemoveRequest struct {
+	Name string `json:"Name"`
+}
+
+type RemoveResponse struct{}
+
+type PathRequest struct {
+	Name string `json:"Name"`
+}
+
+type PathResponse struct {
+	Mountpoint string `json:"Mountpoint"`
+}
+
+type MountRequest struct {
+	Name string `json:"Name"`
+}
+
+type MountResponse struct {
+	Mountpoint string `json:"Mountpoint"`
+}
+
+type UnmountRequest struct {
+	Name string `json:"Name"`
+}
+
+type UnmountResponse struct{}
 
 // Handler forwards requests and responses between the docker daemon and the plugin.
 type Handler struct {
 	driver Driver
 	mux    *http.ServeMux
 }
-
-type actionHandler func(Request) Response
 
 // NewHandler initializes the request handler with a driver implementation.
 func NewHandler(driver Driver) *Handler {
@@ -69,37 +94,54 @@ func (h *Handler) initMux() {
 		fmt.Fprintln(w, defaultImplementationManifest)
 	})
 
-	h.handle(createPath, func(req Request) Response {
-		return h.driver.Create(req)
-	})
-
-	h.handle(remotePath, func(req Request) Response {
-		return h.driver.Remove(req)
-	})
-
-	h.handle(hostVirtualPath, func(req Request) Response {
-		return h.driver.Path(req)
-	})
-
-	h.handle(mountPath, func(req Request) Response {
-		return h.driver.Mount(req)
-	})
-
-	h.handle(unmountPath, func(req Request) Response {
-		return h.driver.Unmount(req)
-	})
-}
-
-func (h *Handler) handle(name string, actionCall actionHandler) {
-	h.mux.HandleFunc(name, func(w http.ResponseWriter, r *http.Request) {
-		req, err := decodeRequest(w, r)
-		if err != nil {
+	h.mux.HandleFunc(createPath, func(w http.ResponseWriter, r *http.Request) {
+		var req CreateRequest
+		if err := decodeRequest(r, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		res, err := h.driver.Create(req)
+		writeResponse(w, res, err)
+	})
 
-		res := actionCall(req)
+	h.mux.HandleFunc(removePath, func(w http.ResponseWriter, r *http.Request) {
+		var req RemoveRequest
+		if err := decodeRequest(r, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res, err := h.driver.Remove(req)
+		writeResponse(w, res, err)
+	})
 
-		encodeResponse(w, res)
+	h.mux.HandleFunc(hostVirtualPath, func(w http.ResponseWriter, r *http.Request) {
+		var req PathRequest
+		if err := decodeRequest(r, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res, err := h.driver.Path(req)
+		writeResponse(w, res, err)
+	})
+
+	h.mux.HandleFunc(mountPath, func(w http.ResponseWriter, r *http.Request) {
+		var req MountRequest
+		if err := decodeRequest(r, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res, err := h.driver.Mount(req)
+		writeResponse(w, res, err)
+	})
+
+	h.mux.HandleFunc(unmountPath, func(w http.ResponseWriter, r *http.Request) {
+		var req UnmountRequest
+		if err := decodeRequest(r, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res, err := h.driver.Unmount(req)
+		writeResponse(w, res, err)
 	})
 }
 
@@ -152,19 +194,20 @@ func (h *Handler) listenAndServe(proto, addr, group string) error {
 	return server.Serve(l)
 }
 
-func decodeRequest(w http.ResponseWriter, r *http.Request) (req Request, err error) {
-	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-	return
+func decodeRequest(r *http.Request, v interface{}) error {
+	defer r.Body.Close()
+	return json.NewDecoder(r.Body).Decode(v)
 }
 
-func encodeResponse(w http.ResponseWriter, res Response) {
+func writeResponse(w http.ResponseWriter, res interface{}, err error) {
 	w.Header().Set("Content-Type", defaultContentTypeV1_1)
-	if res.Err != "" {
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(errorResponse{err.Error()})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(res)
 	}
-	json.NewEncoder(w).Encode(res)
 }
 
 func writeSpec(name, addr string) (string, error) {
