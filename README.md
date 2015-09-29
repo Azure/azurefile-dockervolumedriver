@@ -26,8 +26,8 @@ You can start the server like this:
 
 ```shell
 $ sudo ./azurefile-dockervolumedriver \
-  -account-name <AzureStorageAccount> \
-  -account-key  <AzureStorageAccountKey> &
+  --account-name <AzureStorageAccount> \
+  --account-key  <AzureStorageAccountKey> &
 ```
 
 > **NOTE:** Storage account must be in the same region as virtual machine. Otherwise
@@ -54,19 +54,25 @@ read/write from cloud file share location using SMB protocol.
 ```
 $ ./azurefile-dockervolumedriver -h
 
-Usage of ./azurefile-dockervolumedriver:
-  -account-key string
-        Azure storage account key, used as default if not specified per volume
-  -account-name string
-        Azure storage account name, used as default if not specified per volume
-  -debug
-        enable verbose logging
-  -metadata-path string
-        volume mount point path (default "/etc/docker/plugins/azurefile/volumes/")
-  -mountpoint string
-        volume mount point path (default "/var/run/docker/volumedriver/azurefile")
-  -remove-shares
-        remove associated azure file share when volume is removed
+NAME:
+   azurefile-dockervolumedriver - Docker Volume Driver for Azure File Service
+
+USAGE:
+   azurefile-dockervolumedriver [options]
+
+VERSION:
+   0.1
+
+OPTIONS:
+   --account-name                                               Azure storage account name [$AZURE_STORAGE_ACCOUNT]
+   --account-key                                                Azure storage account key [$AZURE_STORAGE_ACCOUNT_KEY]
+   --remove-shares                                              remove associated Azure File Share when volume is removed
+   --debug                                                      Enable verbose logging [$DEBUG]
+   --mountpoint "/var/run/docker/volumedriver/azurefile"        Host path where volumes are mounted at
+   --metadata "/etc/docker/plugins/azurefile/volumes"           Path where volume metadata are stored
+   --bind ":8080"                                               Network addr to listen for requests
+   --help, -h                                                   show help
+   --version, -v
 ```
 
 ## Building

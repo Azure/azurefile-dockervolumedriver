@@ -24,7 +24,7 @@ type VolumeDriver struct {
 }
 
 func New(accountName, accountKey, mountpoint, metadataRoot string, removeShares bool) (*VolumeDriver, error) {
-	storageClient, err := azure.NewBasicClient(*flAzureAccount, *flAzureAccountKey)
+	storageClient, err := azure.NewBasicClient(accountName, accountKey)
 	if err != nil {
 		return nil, fmt.Errorf("error creating azure client: %v", err)
 	}
@@ -92,7 +92,7 @@ func (v *VolumeDriver) Path(req dkvolume.PathRequest) (dkvolume.PathResponse, er
 		"operation": "path", "name": req.Name,
 	}).Debug("request accepted")
 
-	return dkvolume.PathResponse{Mountpoint: pathForVolume(req.Name)}, nil
+	return dkvolume.PathResponse{Mountpoint: v.pathForVolume(req.Name)}, nil
 }
 
 func (v *VolumeDriver) Mount(req dkvolume.MountRequest) (dkvolume.MountResponse, error) {
@@ -105,7 +105,7 @@ func (v *VolumeDriver) Mount(req dkvolume.MountRequest) (dkvolume.MountResponse,
 	})
 	logctx.Debug("request accepted")
 
-	path := pathForVolume(req.Name)
+	path := v.pathForVolume(req.Name)
 	if err := os.MkdirAll(path, 0700); err != nil {
 		logctx.Error(err)
 		return dkvolume.MountResponse{}, fmt.Errorf("could not create mount point: %v", err)
@@ -142,7 +142,7 @@ func (v *VolumeDriver) Unmount(req dkvolume.UnmountRequest) (dkvolume.UnmountRes
 		"name":      req.Name,
 	})
 	logctx.Debug("request accepted")
-	path := pathForVolume(req.Name)
+	path := v.pathForVolume(req.Name)
 	if err := unmount(path); err != nil {
 		logctx.Error(err)
 		return resp, err
@@ -186,9 +186,11 @@ func (v *VolumeDriver) Remove(req dkvolume.RemoveRequest) (dkvolume.RemoveRespon
 	}
 
 	return resp, nil
+
 }
-func pathForVolume(name string) string {
-	return filepath.Join(*flMountpoint, name)
+
+func (v *VolumeDriver) pathForVolume(name string) string {
+	return filepath.Join(v.mountpoint, name)
 }
 
 func mount(accountName, accountKey, shareName, mountpoint string) error {
