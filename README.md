@@ -45,6 +45,12 @@ $ docker volume create --name my_volume -d azurefile -o share=myshare
 $ docker run -i -t -v my_volume:/data busybox
 ```
 
+or simply:
+
+```shell
+$ docker run -itv $(docker volume create -d azurefile -o share=myshare):/data busybox
+```
+
 This will create an Azure File Share named `myshare` (if it does not exist)
 and start a Docker container in which you can use `/data` directory to directly
 read/write from cloud file share location using SMB protocol.
