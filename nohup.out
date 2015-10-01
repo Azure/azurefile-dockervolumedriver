@@ -1,0 +1,9 @@
+time="2015-09-30T23:56:01Z" level=debug msg="Starting server at :8080" accountName=ahmetfiles metadata="/etc/docker/plugins/azurefile/volumes" mountpoint="/var/run/docker/volumedriver/azurefile" removeShares=false 
+time="2015-09-30T23:57:19Z" level=debug msg="request accepted" name=foo operation=create options=map[share:foo] 
+time="2015-09-30T23:57:20Z" level=debug msg="request accepted" name=foo operation=path 
+time="2015-10-01T05:37:46Z" level=debug msg="request accepted" name=foo operation=create options=map[share:foo] 
+time="2015-10-01T05:37:46Z" level=debug msg="request accepted" name=foo operation=path 
+time="2015-10-01T05:37:50Z" level=debug msg="request accepted" name=foo operation=path 
+time="2015-10-01T18:14:04Z" level=debug msg="request accepted" name=9ec428b69630c23adf5386756956c07d15fa6da9f1a3df0ca0918f6d7d45e819 operation=create options=map[share:28513] 
+time="2015-10-01T18:14:05Z" level=info msg="created azure file share \"28513\"" name=9ec428b69630c23adf5386756956c07d15fa6da9f1a3df0ca0918f6d7d45e819 operation=create options=map[share:28513] 
+time="2015-10-01T18:14:05Z" level=debug msg="request accepted" name=9ec428b69630c23adf5386756956c07d15fa6da9f1a3df0ca0918f6d7d45e819 operation=path 

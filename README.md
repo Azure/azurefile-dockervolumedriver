@@ -48,7 +48,7 @@ $ docker run -i -t -v my_volume:/data busybox
 or simply:
 
 ```shell
-$ docker run -itv $(docker volume create -d azurefile -o share=myshare):/data busybox
+$ docker run -it -v $(docker volume create -d azurefile -o share=myshare):/data busybox
 ```
 
 This will create an Azure File Share named `myshare` (if it does not exist)
