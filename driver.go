@@ -198,7 +198,7 @@ func mount(accountName, accountKey, shareName, mountpoint string) error {
 	// (currently gives hard-to-debug 'invalid argument' error with the
 	// following arguments, my guess is, mount program does IP resolution
 	// and essentially passes a different set of options to system call).
-	cmd := exec.Command("mount", "-t", "cifs", fmt.Sprintf("//%s.file.core.windows.net/%s", accountName, shareName), mountpoint, "-o", fmt.Sprintf("vers=2.1,username=%s,password=%s,dir_mode=0777,file_mode=0777", accountName, accountKey), "--verbose")
+	cmd := exec.Command("mount", "-t", "cifs", fmt.Sprintf("//%s.file.core.windows.net/%s", accountName, shareName), mountpoint, "-o", fmt.Sprintf("vers=3.0,username=%s,password=%s,dir_mode=0777,file_mode=0777", accountName, accountKey), "--verbose")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("mount failed: %v\noutput=%q", err, out)
