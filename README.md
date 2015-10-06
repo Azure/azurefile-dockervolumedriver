@@ -86,7 +86,7 @@ OPTIONS:
 In order to compile this program, you need to have Go 1.5:
 
 ```sh
-$ git clone https://github.com/ahmetalpbalkan/azurefile-dockervolumedriver src/azurefile
+$ git clone https://github.com/Azure/azurefile-dockervolumedriver src/azurefile
 $ export GOPATH=`pwd`
 $ export GO15VENDOREXPERIMENT=1
 $ cd src/azurefile
