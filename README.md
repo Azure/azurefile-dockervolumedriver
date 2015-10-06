@@ -94,10 +94,15 @@ $ go build -o azurefile
 $ ./azurefile -h
 ```
 
+
+## Author
+
+* [Ahmet Alp Balkan](https://github.com/ahmetalpbalkan)
+
 ## License
 
 ```
-Copyright 2015 Ahmet Alp Balkan
+Copyright 2015 Microsoft Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
