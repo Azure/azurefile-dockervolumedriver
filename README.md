@@ -55,6 +55,10 @@ This will create an Azure File Share named `myshare` (if it does not exist)
 and start a Docker container in which you can use `/data` directory to directly
 read/write from cloud file share location using SMB protocol.
 
+## Demo
+
+![](http://cl.ly/image/2z1z1y030u3B/Image%202015-10-06%20at%203.18.39%20PM.gif)
+
 ## Command-line interface
 
 ```
