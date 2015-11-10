@@ -22,7 +22,9 @@ file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
 $ sudo apt-get install -y cifs-utils
 ```
 
-You can start the server like this:
+Please refer to “Building” section below on how to compile.
+
+Once you have the volume driver compiled you can start it as a server:
 
 ```shell
 $ sudo ./azurefile-dockervolumedriver \
