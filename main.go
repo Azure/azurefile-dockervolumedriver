@@ -4,15 +4,14 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/ahmetalpbalkan/dkvolume"
 	"github.com/codegangsta/cli"
+	"github.com/docker/go-plugins-helpers/volume"
 )
 
 const (
 	volumeDriverName = "azurefile"
 	mountpoint       = "/var/run/docker/volumedriver/azurefile"
 	metadataRoot     = "/etc/docker/plugins/azurefile/volumes"
-	defaultBind      = ":8080"
 )
 
 func main() {
@@ -52,11 +51,6 @@ func main() {
 			Usage: "Path where volume metadata are stored",
 			Value: metadataRoot,
 		},
-		cli.StringFlag{
-			Name:  "bind",
-			Usage: "Network addr to listen for requests",
-			Value: defaultBind,
-		},
 	}
 	cmd.Action = func(c *cli.Context) {
 		if c.Bool("debug") {
@@ -84,9 +78,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		h := dkvolume.NewHandler(driver)
-
-		log.Fatal(h.ServeTCP(volumeDriverName, bindAddr))
+		h := volume.NewHandler(driver)
+		log.Fatal(h.ServeUnix("root", volumeDriverName))
 	}
 	cmd.Run(os.Args)
 }

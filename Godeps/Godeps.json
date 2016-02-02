@@ -1,6 +1,9 @@
 {
-	"ImportPath": "github.com/ahmetalpbalkan/azurefile-dockervolumedriver",
+	"ImportPath": "github.com/Azure/azurefile-dockervolumedriver",
 	"GoVersion": "go1.5",
+	"Packages": [
+		"."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/Azure/azure-sdk-for-go/storage",
@@ -13,23 +16,31 @@
 			"Rev": "418b41d23a1bf978c06faea5313ba194650ac088"
 		},
 		{
-			"ImportPath": "github.com/ahmetalpbalkan/dkvolume",
-			"Rev": "ea7fb74b79b3e8c802382ad2d3f1941de9230787"
-		},
-		{
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "1.2.0-143-ga65b733",
 			"Rev": "a65b733b303f0055f8d324d805f393cd3e7a7904"
 		},
 		{
-			"ImportPath": "github.com/docker/docker/pkg/listenbuffer",
-			"Comment": "v1.4.1-6346-gb0dc111",
-			"Rev": "b0dc11127ef4fc20261ccc0db03a16b17f7f91c4"
+			"ImportPath": "github.com/docker/go-connections/sockets",
+			"Comment": "v0.1.2-2-g082e382",
+			"Rev": "082e382836465660fe3fd21de06624a205f986eb"
 		},
 		{
-			"ImportPath": "github.com/docker/libcontainer/user",
-			"Comment": "v2.2.1-23-g83a102c",
-			"Rev": "83a102cc68a09d890cce3b6c2e5c14c49e6373a0"
+			"ImportPath": "github.com/docker/go-plugins-helpers/sdk",
+			"Rev": "c673bfc017b81d1dd62b922fdc8672a42dd28226"
+		},
+		{
+			"ImportPath": "github.com/docker/go-plugins-helpers/volume",
+			"Rev": "c673bfc017b81d1dd62b922fdc8672a42dd28226"
+		},
+		{
+			"ImportPath": "github.com/opencontainers/runc/libcontainer/user",
+			"Comment": "v0.0.7",
+			"Rev": "3268a1ea007f54f16e4d969c0900efb59beb3d08"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "20457ee8ea8546920d3f4e19e405da45250dc5a5"
 		}
 	]
 }

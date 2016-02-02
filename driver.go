@@ -10,7 +10,7 @@ import (
 
 	azure "github.com/Azure/azure-sdk-for-go/storage"
 	log "github.com/Sirupsen/logrus"
-	"github.com/ahmetalpbalkan/dkvolume"
+	"github.com/docker/go-plugins-helpers/volume"
 )
 
 type VolumeDriver struct {
@@ -42,10 +42,9 @@ func New(accountName, accountKey, mountpoint, metadataRoot string, removeShares 
 	}, nil
 }
 
-func (v *VolumeDriver) Create(req dkvolume.CreateRequest) (dkvolume.CreateResponse, error) {
+func (v *VolumeDriver) Create(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
-	var resp dkvolume.CreateResponse
 
 	logctx := log.WithFields(log.Fields{
 		"operation": "create",
@@ -54,7 +53,9 @@ func (v *VolumeDriver) Create(req dkvolume.CreateRequest) (dkvolume.CreateRespon
 
 	volMeta, err := v.meta.Validate(req.Options)
 	if err != nil {
-		return resp, err
+		resp.Err = fmt.Sprintf("error validating metadata: %v", err)
+		logctx.Error(resp.Err)
+		return
 	}
 
 	// Additional volume metadata
@@ -63,28 +64,32 @@ func (v *VolumeDriver) Create(req dkvolume.CreateRequest) (dkvolume.CreateRespon
 
 	share := req.Options["share"]
 	if share == "" {
-		return resp, fmt.Errorf("missing volume option: 'share'")
+		resp.Err = "missing volume option: 'share'"
+		logctx.Error(resp.Err)
+		return
 	}
 
 	logctx.Debug("request accepted")
 
 	// Create azure file share
 	if ok, err := v.cl.CreateShareIfNotExists(share); err != nil {
-		logctx.Error(err)
-		return resp, fmt.Errorf("error creating azure file share: %v", err)
+		resp.Err = fmt.Sprintf("error creating azure file share: %v", err)
+		logctx.Error(resp.Err)
+		return
 	} else if ok {
 		logctx.Infof("created azure file share %q", share)
 	}
 
 	// Save volume metadata
 	if err := v.meta.Set(req.Name, volMeta); err != nil {
-		return resp, err
+		resp.Err = fmt.Sprintf("error saving metadata: %v", err)
+		logctx.Error(resp.Err)
+		return
 	}
-
-	return resp, nil
+	return
 }
 
-func (v *VolumeDriver) Path(req dkvolume.PathRequest) (dkvolume.PathResponse, error) {
+func (v *VolumeDriver) Path(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -92,10 +97,11 @@ func (v *VolumeDriver) Path(req dkvolume.PathRequest) (dkvolume.PathResponse, er
 		"operation": "path", "name": req.Name,
 	}).Debug("request accepted")
 
-	return dkvolume.PathResponse{Mountpoint: v.pathForVolume(req.Name)}, nil
+	resp.Mountpoint = v.pathForVolume(req.Name)
+	return
 }
 
-func (v *VolumeDriver) Mount(req dkvolume.MountRequest) (dkvolume.MountResponse, error) {
+func (v *VolumeDriver) Mount(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -107,35 +113,36 @@ func (v *VolumeDriver) Mount(req dkvolume.MountRequest) (dkvolume.MountResponse,
 
 	path := v.pathForVolume(req.Name)
 	if err := os.MkdirAll(path, 0700); err != nil {
-		logctx.Error(err)
-		return dkvolume.MountResponse{}, fmt.Errorf("could not create mount point: %v", err)
+		resp.Err = fmt.Sprintf("could not create mount point: %v", err)
+		logctx.Error(resp.Err)
+		return
 	}
 
 	meta, err := v.meta.Get(req.Name)
 	if err != nil {
-		logctx.Error(err)
-		return dkvolume.MountResponse{}, err
+		resp.Err = fmt.Sprintf("could not fetch metadata: %v", err)
+		logctx.Error(resp.Err)
+		return
 	}
 
 	if meta.Account != v.accountName {
-		err = fmt.Errorf("volume hosted on a different account ('%s') cannot mount", meta.Account)
-		logctx.Error(err)
-		return dkvolume.MountResponse{}, err
+		resp.Err = fmt.Sprintf("volume hosted on a different account ('%s') cannot mount", meta.Account)
+		logctx.Error(resp.Err)
+		return
 	}
 
 	if err := mount(v.accountName, v.accountKey, meta.Options.Share, path); err != nil {
-		logctx.Error(err)
-		return dkvolume.MountResponse{}, err
+		resp.Err = err.Error()
+		logctx.Error(resp.Err)
+		return
 	}
-	return dkvolume.MountResponse{
-		Mountpoint: path}, nil
+	resp.Mountpoint = path
+	return
 }
 
-func (v *VolumeDriver) Unmount(req dkvolume.UnmountRequest) (dkvolume.UnmountResponse, error) {
+func (v *VolumeDriver) Unmount(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
-
-	var resp dkvolume.UnmountResponse
 
 	logctx := log.WithFields(log.Fields{
 		"operation": "unmount",
@@ -144,22 +151,21 @@ func (v *VolumeDriver) Unmount(req dkvolume.UnmountRequest) (dkvolume.UnmountRes
 	logctx.Debug("request accepted")
 	path := v.pathForVolume(req.Name)
 	if err := unmount(path); err != nil {
-		logctx.Error(err)
-		return resp, err
+		resp.Err = err.Error()
+		logctx.Error(resp.Err)
+		return
 	}
 	if err := os.RemoveAll(path); err != nil {
-		err = fmt.Errorf("error removing mountpoint: %v", err)
-		logctx.Error(err)
-		return resp, err
+		resp.Err = fmt.Sprintf("error removing mountpoint: %v", err)
+		logctx.Error(resp.Err)
+		return
 	}
-
-	return resp, nil
+	return
 }
 
-func (v *VolumeDriver) Remove(req dkvolume.RemoveRequest) (dkvolume.RemoveResponse, error) {
+func (v *VolumeDriver) Remove(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
-	var resp dkvolume.RemoveResponse
 
 	logctx := log.WithFields(log.Fields{
 		"operation": "remove",
@@ -169,24 +175,24 @@ func (v *VolumeDriver) Remove(req dkvolume.RemoveRequest) (dkvolume.RemoveRespon
 
 	meta, err := v.meta.Get(req.Name)
 	if err != nil {
-		logctx.Error(err)
-		return resp, err
+		resp.Err = fmt.Sprintf("could not fetch metadata: %v", err)
+		logctx.Error(resp.Err)
+		return
 	}
 
 	share := meta.Options.Share
 	if v.removeShares {
 		if ok, err := v.cl.DeleteShareIfExists(share); err != nil {
-			logctx.Error(err)
-			return resp, fmt.Errorf("error removing azure file share %q: %v", share, err)
+			resp.Err = fmt.Sprintf("error removing azure file share %q: %v", share, err)
+			logctx.Error(resp.Err)
+			return
 		} else if ok {
 			logctx.Infof("removed azure file share %q", share)
 		}
 	} else {
 		logctx.Debugf("not removing share %q upon volume removal", share)
 	}
-
-	return resp, nil
-
+	return
 }
 
 func (v *VolumeDriver) pathForVolume(name string) string {
