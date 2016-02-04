@@ -1,0 +1,14 @@
+# Configuration file for Azure File Service Docker Volume Driver.
+#
+# Required keys:
+# - AF_ACCOUNT_NAME: Azure storage account name
+# - AF_ACCOUNT_KEY:  Azure storage account key
+#
+# Customize location of executable (dev/test purposes):
+# AF_CMD=/usr/local/bin/azurefile-dockervolumedriver
+#
+# Additional arguments to executable:
+# AF_OPTS=--debug
+
+AF_ACCOUNT_NAME=youraccount
+AF_ACCOUNT_KEY=yourkey

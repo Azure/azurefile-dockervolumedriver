@@ -88,6 +88,10 @@ $ go build -o azurefile
 $ ./azurefile -h
 ```
 
+### Installing on Ubuntu 14.04 or lower
+
+Please [check out the docs](contrib/init/upstart/README.md) to configure
+the service for Ubuntu distributions with upstart.
 
 ## Author
 
