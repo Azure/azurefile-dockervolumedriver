@@ -13,26 +13,26 @@ import (
 	"github.com/docker/go-plugins-helpers/volume"
 )
 
-type VolumeDriver struct {
+type volumeDriver struct {
 	m            sync.Mutex
 	cl           azure.FileServiceClient
-	meta         *MetadataDriver
+	meta         *metadataDriver
 	accountName  string
 	accountKey   string
 	mountpoint   string
 	removeShares bool
 }
 
-func New(accountName, accountKey, mountpoint, metadataRoot string, removeShares bool) (*VolumeDriver, error) {
+func newVolumeDriver(accountName, accountKey, mountpoint, metadataRoot string, removeShares bool) (*volumeDriver, error) {
 	storageClient, err := azure.NewBasicClient(accountName, accountKey)
 	if err != nil {
 		return nil, fmt.Errorf("error creating azure client: %v", err)
 	}
-	metaDriver, err := NewMetadataDriver(metadataRoot)
+	metaDriver, err := newMetadataDriver(metadataRoot)
 	if err != nil {
 		return nil, fmt.Errorf("cannot initialize metadata driver: %v", err)
 	}
-	return &VolumeDriver{
+	return &volumeDriver{
 		cl:           storageClient.GetFileService(),
 		meta:         metaDriver,
 		accountName:  accountName,
@@ -42,7 +42,7 @@ func New(accountName, accountKey, mountpoint, metadataRoot string, removeShares 
 	}, nil
 }
 
-func (v *VolumeDriver) Create(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Create(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -89,7 +89,7 @@ func (v *VolumeDriver) Create(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) Path(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Path(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -101,7 +101,7 @@ func (v *VolumeDriver) Path(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) Mount(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Mount(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -140,7 +140,7 @@ func (v *VolumeDriver) Mount(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) Unmount(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Unmount(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -163,7 +163,7 @@ func (v *VolumeDriver) Unmount(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) Remove(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Remove(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -195,7 +195,7 @@ func (v *VolumeDriver) Remove(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) Get(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Get(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 	logctx := log.WithFields(log.Fields{
@@ -214,7 +214,7 @@ func (v *VolumeDriver) Get(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) List(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) List(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -236,12 +236,12 @@ func (v *VolumeDriver) List(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *VolumeDriver) volumeEntry(name string) *volume.Volume {
+func (v *volumeDriver) volumeEntry(name string) *volume.Volume {
 	return &volume.Volume{Name: name,
 		Mountpoint: v.pathForVolume(name)}
 }
 
-func (v *VolumeDriver) pathForVolume(name string) string {
+func (v *volumeDriver) pathForVolume(name string) string {
 	return filepath.Join(v.mountpoint, name)
 }
 
