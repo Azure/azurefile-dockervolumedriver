@@ -541,17 +541,103 @@ func (b BlobStorageClient) GetBlobProperties(container, name string) (*BlobPrope
 	}, nil
 }
 
+// SetBlobMetadata replaces the metadata for the specified blob.
+//
+// Some keys may be converted to Camel-Case before sending. All keys
+// are returned in lower case by GetBlobMetadata. HTTP header names
+// are case-insensitive so case munging should not matter to other
+// applications either.
+//
+// See https://msdn.microsoft.com/en-us/library/azure/dd179414.aspx
+func (b BlobStorageClient) SetBlobMetadata(container, name string, metadata map[string]string) error {
+	params := url.Values{"comp": {"metadata"}}
+	uri := b.client.getEndpoint(blobServiceName, pathForBlob(container, name), params)
+	headers := b.client.getStandardHeaders()
+	for k, v := range metadata {
+		headers[userDefinedMetadataHeaderPrefix+k] = v
+	}
+	headers["Content-Length"] = "0"
+
+	resp, err := b.client.exec("PUT", uri, headers, nil)
+	if err != nil {
+		return err
+	}
+	defer resp.body.Close()
+
+	return checkRespCode(resp.statusCode, []int{http.StatusOK})
+}
+
+// GetBlobMetadata returns all user-defined metadata for the specified blob.
+//
+// All metadata keys will be returned in lower case. (HTTP header
+// names are case-insensitive.)
+//
+// See https://msdn.microsoft.com/en-us/library/azure/dd179414.aspx
+func (b BlobStorageClient) GetBlobMetadata(container, name string) (map[string]string, error) {
+	params := url.Values{"comp": {"metadata"}}
+	uri := b.client.getEndpoint(blobServiceName, pathForBlob(container, name), params)
+	headers := b.client.getStandardHeaders()
+
+	resp, err := b.client.exec("GET", uri, headers, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.body.Close()
+
+	if err := checkRespCode(resp.statusCode, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	metadata := make(map[string]string)
+	for k, v := range resp.headers {
+		// Can't trust CanonicalHeaderKey() to munge case
+		// reliably. "_" is allowed in identifiers:
+		// https://msdn.microsoft.com/en-us/library/azure/dd179414.aspx
+		// https://msdn.microsoft.com/library/aa664670(VS.71).aspx
+		// http://tools.ietf.org/html/rfc7230#section-3.2
+		// ...but "_" is considered invalid by
+		// CanonicalMIMEHeaderKey in
+		// https://golang.org/src/net/textproto/reader.go?s=14615:14659#L542
+		// so k can be "X-Ms-Meta-Foo" or "x-ms-meta-foo_bar".
+		k = strings.ToLower(k)
+		if len(v) == 0 || !strings.HasPrefix(k, strings.ToLower(userDefinedMetadataHeaderPrefix)) {
+			continue
+		}
+		// metadata["foo"] = content of the last X-Ms-Meta-Foo header
+		k = k[len(userDefinedMetadataHeaderPrefix):]
+		metadata[k] = v[len(v)-1]
+	}
+	return metadata, nil
+}
+
 // CreateBlockBlob initializes an empty block blob with no blocks.
 //
 // See https://msdn.microsoft.com/en-us/library/azure/dd179451.aspx
 func (b BlobStorageClient) CreateBlockBlob(container, name string) error {
+	return b.CreateBlockBlobFromReader(container, name, 0, nil, nil)
+}
+
+// CreateBlockBlobFromReader initializes a block blob using data from
+// reader. Size must be the number of bytes read from reader. To
+// create an empty blob, use size==0 and reader==nil.
+//
+// The API rejects requests with size > 64 MiB (but this limit is not
+// checked by the SDK). To write a larger blob, use CreateBlockBlob,
+// PutBlock, and PutBlockList.
+//
+// See https://msdn.microsoft.com/en-us/library/azure/dd179451.aspx
+func (b BlobStorageClient) CreateBlockBlobFromReader(container, name string, size uint64, blob io.Reader, extraHeaders map[string]string) error {
 	path := fmt.Sprintf("%s/%s", container, name)
 	uri := b.client.getEndpoint(blobServiceName, path, url.Values{})
 	headers := b.client.getStandardHeaders()
 	headers["x-ms-blob-type"] = string(BlobTypeBlock)
-	headers["Content-Length"] = fmt.Sprintf("%v", 0)
+	headers["Content-Length"] = fmt.Sprintf("%d", size)
 
-	resp, err := b.client.exec("PUT", uri, headers, nil)
+	for k, v := range extraHeaders {
+		headers[k] = v
+	}
+
+	resp, err := b.client.exec("PUT", uri, headers, blob)
 	if err != nil {
 		return err
 	}
@@ -562,26 +648,37 @@ func (b BlobStorageClient) CreateBlockBlob(container, name string) error {
 // PutBlock saves the given data chunk to the specified block blob with
 // given ID.
 //
+// The API rejects chunks larger than 4 MiB (but this limit is not
+// checked by the SDK).
+//
 // See https://msdn.microsoft.com/en-us/library/azure/dd135726.aspx
 func (b BlobStorageClient) PutBlock(container, name, blockID string, chunk []byte) error {
-	return b.PutBlockWithLength(container, name, blockID, uint64(len(chunk)), bytes.NewReader(chunk))
+	return b.PutBlockWithLength(container, name, blockID, uint64(len(chunk)), bytes.NewReader(chunk), nil)
 }
 
 // PutBlockWithLength saves the given data stream of exactly specified size to
 // the block blob with given ID. It is an alternative to PutBlocks where data
 // comes as stream but the length is known in advance.
 //
+// The API rejects requests with size > 4 MiB (but this limit is not
+// checked by the SDK).
+//
 // See https://msdn.microsoft.com/en-us/library/azure/dd135726.aspx
-func (b BlobStorageClient) PutBlockWithLength(container, name, blockID string, size uint64, blob io.Reader) error {
+func (b BlobStorageClient) PutBlockWithLength(container, name, blockID string, size uint64, blob io.Reader, extraHeaders map[string]string) error {
 	uri := b.client.getEndpoint(blobServiceName, pathForBlob(container, name), url.Values{"comp": {"block"}, "blockid": {blockID}})
 	headers := b.client.getStandardHeaders()
 	headers["x-ms-blob-type"] = string(BlobTypeBlock)
 	headers["Content-Length"] = fmt.Sprintf("%v", size)
 
+	for k, v := range extraHeaders {
+		headers[k] = v
+	}
+
 	resp, err := b.client.exec("PUT", uri, headers, blob)
 	if err != nil {
 		return err
 	}
+
 	defer resp.body.Close()
 	return checkRespCode(resp.statusCode, []int{http.StatusCreated})
 }
@@ -628,13 +725,17 @@ func (b BlobStorageClient) GetBlockList(container, name string, blockType BlockL
 // be created using this method before writing pages.
 //
 // See https://msdn.microsoft.com/en-us/library/azure/dd179451.aspx
-func (b BlobStorageClient) PutPageBlob(container, name string, size int64) error {
+func (b BlobStorageClient) PutPageBlob(container, name string, size int64, extraHeaders map[string]string) error {
 	path := fmt.Sprintf("%s/%s", container, name)
 	uri := b.client.getEndpoint(blobServiceName, path, url.Values{})
 	headers := b.client.getStandardHeaders()
 	headers["x-ms-blob-type"] = string(BlobTypePage)
 	headers["x-ms-blob-content-length"] = fmt.Sprintf("%v", size)
 	headers["Content-Length"] = fmt.Sprintf("%v", 0)
+
+	for k, v := range extraHeaders {
+		headers[k] = v
+	}
 
 	resp, err := b.client.exec("PUT", uri, headers, nil)
 	if err != nil {

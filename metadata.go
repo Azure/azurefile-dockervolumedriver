@@ -79,6 +79,23 @@ func (m *MetadataDriver) Get(name string) (VolumeMetadata, error) {
 	return v, nil
 }
 
+func (m *MetadataDriver) List() ([]string, error) {
+	var volumes []string
+	if err := filepath.Walk(m.metaDir, func(path string, info os.FileInfo, inErr error) error {
+		if inErr != nil {
+			return inErr
+		}
+		if info.IsDir() {
+			return filepath.SkipDir
+		}
+		volumes = append(volumes, path)
+		return nil
+	}); err != nil {
+		return volumes, fmt.Errorf("cannot list directory: %v", err)
+	}
+	return volumes, nil
+}
+
 func (m *MetadataDriver) path(name string) string {
 	return filepath.Join(m.metaDir, name)
 }
