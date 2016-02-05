@@ -74,7 +74,7 @@ func main() {
 			"removeShares": removeShares,
 		}).Debugf("Starting server at %s", bindAddr)
 
-		driver, err := New(accountName, accountKey, mountpoint, metaDir, removeShares)
+		driver, err := newVolumeDriver(accountName, accountKey, mountpoint, metaDir, removeShares)
 		if err != nil {
 			log.Fatal(err)
 		}

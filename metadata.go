@@ -13,32 +13,33 @@ var (
 	recognizedOptions = []string{"share"}
 )
 
-type VolumeMetadata struct {
+type volumeMetadata struct {
 	CreatedAt time.Time     `json:"created_at"`
 	Account   string        `json:"account"`
 	Options   VolumeOptions `json:"options"`
 }
 
+// VolumeOptions stores the opts passed to the driver by the docker engine.
 type VolumeOptions struct {
 	Share string `json:"share"`
 }
 
-type MetadataDriver struct {
+type metadataDriver struct {
 	metaDir string
 }
 
-func NewMetadataDriver(metaDir string) (*MetadataDriver, error) {
+func newMetadataDriver(metaDir string) (*metadataDriver, error) {
 	if err := os.MkdirAll(metaDir, 0700); err != nil {
 		return nil, fmt.Errorf("error creating %s: %v", metaDir, err)
 	}
-	return &MetadataDriver{metaDir}, nil
+	return &metadataDriver{metaDir}, nil
 }
 
-func (m *MetadataDriver) Validate(meta map[string]string) (VolumeMetadata, error) {
-	var v VolumeMetadata
+func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error) {
+	var v volumeMetadata
 
 	// Validate keys
-	for k, _ := range meta {
+	for k := range meta {
 		found := false
 		for _, opts := range recognizedOptions {
 			if k == opts {
@@ -51,12 +52,12 @@ func (m *MetadataDriver) Validate(meta map[string]string) (VolumeMetadata, error
 		}
 	}
 
-	return VolumeMetadata{
+	return volumeMetadata{
 		Options: VolumeOptions{
 			Share: meta["share"]}}, nil
 }
 
-func (m *MetadataDriver) Set(name string, meta VolumeMetadata) error {
+func (m *metadataDriver) Set(name string, meta volumeMetadata) error {
 	b, err := json.Marshal(meta)
 	if err != nil {
 		return fmt.Errorf("cannot serialize metadata: %v", err)
@@ -67,8 +68,8 @@ func (m *MetadataDriver) Set(name string, meta VolumeMetadata) error {
 	return nil
 }
 
-func (m *MetadataDriver) Get(name string) (VolumeMetadata, error) {
-	var v VolumeMetadata
+func (m *metadataDriver) Get(name string) (volumeMetadata, error) {
+	var v volumeMetadata
 	b, err := ioutil.ReadFile(m.path(name))
 	if err != nil {
 		return v, fmt.Errorf("cannot read metadata: %v", err)
@@ -79,7 +80,7 @@ func (m *MetadataDriver) Get(name string) (VolumeMetadata, error) {
 	return v, nil
 }
 
-func (m *MetadataDriver) List() ([]string, error) {
+func (m *metadataDriver) List() ([]string, error) {
 	var volumes []string
 	if err := filepath.Walk(m.metaDir, func(path string, info os.FileInfo, inErr error) error {
 		if inErr != nil {
@@ -96,6 +97,6 @@ func (m *MetadataDriver) List() ([]string, error) {
 	return volumes, nil
 }
 
-func (m *MetadataDriver) path(name string) string {
+func (m *metadataDriver) path(name string) string {
 	return filepath.Join(m.metaDir, name)
 }
