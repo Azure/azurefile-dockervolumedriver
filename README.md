@@ -4,6 +4,8 @@ This is a Docker Volume Driver which uses [Azure Storage File Service][afs]
 to mount file shares on the cloud to Docker containers as volumes. It uses network
 file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
 
+[![Build Status](https://travis-ci.org/Azure/azurefile-dockervolumedriver.svg?branch=master)](https://travis-ci.org/Azure/azurefile-dockervolumedriver)
+
 ## Why?
 
 - You can create Docker containers that can migrate from one host to another seamlessly.
