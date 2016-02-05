@@ -195,6 +195,52 @@ func (v *VolumeDriver) Remove(req volume.Request) (resp volume.Response) {
 	return
 }
 
+func (v *VolumeDriver) Get(req volume.Request) (resp volume.Response) {
+	v.m.Lock()
+	defer v.m.Unlock()
+	logctx := log.WithFields(log.Fields{
+		"operation": "get",
+		"name":      req.Name,
+	})
+	logctx.Debug("request accepted")
+
+	_, err := v.meta.Get(req.Name)
+	if err != nil {
+		resp.Err = fmt.Sprintf("could not fetch metadata: %v", err)
+		logctx.Error(resp.Err)
+		return
+	}
+	resp.Volume = v.volumeEntry(req.Name)
+	return
+}
+
+func (v *VolumeDriver) List(req volume.Request) (resp volume.Response) {
+	v.m.Lock()
+	defer v.m.Unlock()
+
+	logctx := log.WithFields(log.Fields{
+		"operation": "list",
+	})
+	logctx.Debug("request accepted")
+
+	vols, err := v.meta.List()
+	if err != nil {
+		resp.Err = fmt.Sprintf("failed to list managed volumes: %v", err)
+		logctx.Error(resp.Err)
+		return
+	}
+
+	for _, vn := range vols {
+		resp.Volumes = append(resp.Volumes, v.volumeEntry(vn))
+	}
+	return
+}
+
+func (v *VolumeDriver) volumeEntry(name string) *volume.Volume {
+	return &volume.Volume{Name: name,
+		Mountpoint: v.pathForVolume(name)}
+}
+
 func (v *VolumeDriver) pathForVolume(name string) string {
 	return filepath.Join(v.mountpoint, name)
 }
