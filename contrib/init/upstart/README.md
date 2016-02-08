@@ -31,9 +31,9 @@ Once the files are copied, run these commands as sudo:
 
 Now the volume driver plugin service should be started on the machine. Verify by running:
 
-    ps aux | grep azure
+    initctl status azurefile-dockervolumedriver
 
-and you should see an entry for `/usr/bin/azurefile-dockervolumedriver`.
+and you should see an output saying “start/running” for the service.
 
 From this point on every time the plugin service crashes or the system reboots, it should
 be stated again by upstart.
