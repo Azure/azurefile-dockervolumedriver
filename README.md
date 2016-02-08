@@ -63,33 +63,19 @@ read/write from cloud file share location using SMB protocol.
 
 ![](http://cl.ly/image/2z1z1y030u3B/Image%202015-10-06%20at%203.18.39%20PM.gif)
 
-## Command-line interface
+## Changelog
 
 ```
-$ ./azurefile-dockervolumedriver -h
 
-NAME:
-   azurefile-dockervolumedriver - Docker Volume Driver for Azure File Service
+# 0.1 (2016-02-08)
+- Initial release.
 
-USAGE:
-   azurefile-dockervolumedriver [options]
-
-VERSION:
-   0.1
-
-OPTIONS:
-   --account-name                                               Azure storage account name [$AZURE_STORAGE_ACCOUNT]
-   --account-key                                                Azure storage account key [$AZURE_STORAGE_ACCOUNT_KEY]
-   --remove-shares                                              remove associated Azure File Share when volume is removed
-   --debug                                                      Enable verbose logging [$DEBUG]
-   --mountpoint "/var/run/docker/volumedriver/azurefile"        Host path where volumes are mounted at
-   --metadata "/etc/docker/plugins/azurefile/volumes"           Path where volume metadata are stored
-   --bind ":8080"                                               Network addr to listen for requests
-   --help, -h                                                   show help
-   --version, -v
 ```
 
 ## Building
+
+If you need to use this project, please consider downloading it from “Releases”
+link above. The following instructions are for compiling the project from source.
 
 In order to compile this program, you need to have Go 1.5:
 
