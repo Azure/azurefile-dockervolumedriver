@@ -233,6 +233,7 @@ func (v *volumeDriver) List(req volume.Request) (resp volume.Response) {
 	for _, vn := range vols {
 		resp.Volumes = append(resp.Volumes, v.volumeEntry(vn))
 	}
+	logctx.Debugf("response has %d items", len(resp.Volumes))
 	return
 }
 
