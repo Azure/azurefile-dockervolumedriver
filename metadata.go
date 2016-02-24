@@ -57,6 +57,13 @@ func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error
 			Share: meta["share"]}}, nil
 }
 
+func (m *metadataDriver) Delete(name string) error {
+	if err := os.RemoveAll(m.path(name)); err != nil {
+		return fmt.Errorf("cannot delete volume metadata: %v", err)
+	}
+	return nil
+}
+
 func (m *metadataDriver) Set(name string, meta volumeMetadata) error {
 	b, err := json.Marshal(meta)
 	if err != nil {

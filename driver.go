@@ -192,6 +192,13 @@ func (v *volumeDriver) Remove(req volume.Request) (resp volume.Response) {
 	} else {
 		logctx.Debugf("not removing share %q upon volume removal", share)
 	}
+
+	logctx.Debug("removing volume metadata")
+	if err != v.meta.Delete(req.Name) {
+		resp.Err = err.Error()
+		logctx.Error(resp.Err)
+		return
+	}
 	return
 }
 
