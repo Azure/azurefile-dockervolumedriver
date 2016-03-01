@@ -17,7 +17,7 @@ const (
 func main() {
 	cmd := cli.NewApp()
 	cmd.Name = "azurefile-dockervolumedriver"
-	cmd.Version = "0.1"
+	cmd.Version = "0.2"
 	cmd.Usage = "Docker Volume Driver for Azure File Service"
 	cli.AppHelpTemplate = usageTemplate
 
@@ -62,7 +62,6 @@ func main() {
 		mountpoint := c.String("mountpoint")
 		metaDir := c.String("metadata")
 		removeShares := c.Bool("remove-shares")
-		bindAddr := c.String("bind")
 		if accountName == "" || accountKey == "" {
 			log.Fatal("azure storage account name and key must be provided.")
 		}
@@ -72,7 +71,7 @@ func main() {
 			"metadata":     metaDir,
 			"mountpoint":   mountpoint,
 			"removeShares": removeShares,
-		}).Debugf("Starting server at %s", bindAddr)
+		}).Debug("Starting server.")
 
 		driver, err := newVolumeDriver(accountName, accountKey, mountpoint, metaDir, removeShares)
 		if err != nil {
