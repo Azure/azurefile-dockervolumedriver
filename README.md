@@ -66,6 +66,11 @@ read/write from cloud file share location using SMB protocol.
 ## Changelog
 
 ```
+# 0.2 (2016-03-01)
+- Added upstart init script and installation instructions.
+- Bugfix: Empty response for docker volume ls (#20)
+- Bugfix: Prevent leaking volume metadata (#19)
+- Bugfix: Proper mountpoint removal in duplicate mounts (#23)
 
 # 0.1 (2016-02-08)
 - Initial release.
