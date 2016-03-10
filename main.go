@@ -78,7 +78,7 @@ func main() {
 			log.Fatal(err)
 		}
 		h := volume.NewHandler(driver)
-		log.Fatal(h.ServeUnix("root", volumeDriverName))
+		log.Fatal(h.ServeUnix("docker", volumeDriverName))
 	}
 	cmd.Run(os.Args)
 }
