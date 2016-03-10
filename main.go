@@ -17,7 +17,7 @@ const (
 func main() {
 	cmd := cli.NewApp()
 	cmd.Name = "azurefile-dockervolumedriver"
-	cmd.Version = "0.2"
+	cmd.Version = "0.2.1"
 	cmd.Usage = "Docker Volume Driver for Azure File Service"
 	cli.AppHelpTemplate = usageTemplate
 
