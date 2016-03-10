@@ -1,0 +1,14 @@
+[Unit]
+Description=Azure File Service Docker Volume Driver
+Documentation=https://github.com/Azure/azurefile-dockervolumedriver/
+After=nfs-utils.service	docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/default/azurefile-dockervolumedriver
+ExecStart=/opt/bin/azurefile-dockervolumedriver $AF_OPTS
+Restart=always
+StandardOutput=syslog
+
+[Install]
+WantedBy=multi-user.target

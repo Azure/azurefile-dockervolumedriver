@@ -13,6 +13,13 @@ file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
 
 ## Usage
 
+## Installation
+
+Please check out the following documentation:
+
+- [Install on Ubuntu 14.04 or lower (upstart)](contrib/init/upstart/README.md)
+- [Install on CoreOS (systemd)](contrib/init/systemd/README.md)
+
 #### Start volume driver daemon
 
 * Make sure you have a Storage Account on Azure (using Azure CLI or Portal).
@@ -24,15 +31,9 @@ file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
 $ sudo apt-get install -y cifs-utils
 ```
 
-Please refer to “Building” section below on how to compile.
-
-Once you have the volume driver compiled you can start it as a server:
-
-```shell
-$ sudo ./azurefile-dockervolumedriver \
-  --account-name <AzureStorageAccount> \
-  --account-key  <AzureStorageAccountKey> &
-```
+Please refer to “Installation” section above. If you like to build the binary from source, 
+see “Building” section below on how to compile. Once the driver is installed, start it and
+check its status.
 
 > **NOTE:** Storage account must be in the same region as virtual machine. Otherwise
 > you will get an error like “Host is down”.
@@ -63,6 +64,7 @@ read/write from cloud file share location using SMB protocol.
 
 ![](http://cl.ly/image/2z1z1y030u3B/Image%202015-10-06%20at%203.18.39%20PM.gif)
 
+
 ## Changelog
 
 ```
@@ -82,21 +84,27 @@ read/write from cloud file share location using SMB protocol.
 If you need to use this project, please consider downloading it from “Releases”
 link above. The following instructions are for compiling the project from source.
 
-In order to compile this program, you need to have Go 1.5:
+In order to compile this program, you need to have Go 1.6:
 
 ```sh
 $ git clone https://github.com/Azure/azurefile-dockervolumedriver src/azurefile
 $ export GOPATH=`pwd`
-$ export GO15VENDOREXPERIMENT=1
 $ cd src/azurefile
-$ go build -o azurefile
-$ ./azurefile -h
+$ go build
+$ ./azurefile-dockervolumedriver -h
 ```
 
-### Installing on Ubuntu 14.04 or lower
+Once you have the binary compiled you can start it as follows:
 
-Please [check out the docs](contrib/init/upstart/README.md) to configure
-the service for Ubuntu distributions with upstart.
+```shell
+$ sudo ./azurefile-dockervolumedriver \
+  --account-name <AzureStorageAccount> \
+  --account-key  <AzureStorageAccountKey> &
+```
+
+However you’re recommended to use an init system to start this process after
+docker engine and have it restarted between reboots and crashes. Please refer to
+“Installation” section for more info.
 
 ## Author
 
