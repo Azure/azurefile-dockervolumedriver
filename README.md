@@ -68,6 +68,9 @@ read/write from cloud file share location using SMB protocol.
 ## Changelog
 
 ```
+# 0.2.1 (2016-03-10)
+- Start unix socket under docker group instead of root.
+
 # 0.2 (2016-03-01)
 - Added upstart init script and installation instructions.
 - Bugfix: Empty response for docker volume ls (#20)
