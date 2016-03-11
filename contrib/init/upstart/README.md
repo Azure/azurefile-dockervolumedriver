@@ -1,4 +1,4 @@
-# Ubuntu installation instructions
+# Ubuntu (upstart) installation instructions
 
 These instructions are valid for Ubuntu versions using `upstart` init system.
 

@@ -18,7 +18,7 @@ file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
 Please check out the following documentation:
 
 - [Install on Ubuntu 14.04 or lower (upstart)](contrib/init/upstart/README.md)
-- [Install on CoreOS (systemd)](contrib/init/systemd/README.md)
+- [Install on Ubuntu 15.04 or higher (systemd)](contrib/init/systemd/README.md)
 
 #### Start volume driver daemon
 
