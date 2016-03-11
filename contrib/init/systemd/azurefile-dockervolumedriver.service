@@ -6,7 +6,7 @@ Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/default/azurefile-dockervolumedriver
-ExecStart=/opt/bin/azurefile-dockervolumedriver $AF_OPTS
+ExecStart=/usr/bin/azurefile-dockervolumedriver $AF_OPTS
 Restart=always
 StandardOutput=syslog
 

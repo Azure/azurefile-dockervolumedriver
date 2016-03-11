@@ -1,32 +1,26 @@
-> **IMPORTANT NOTE:** This project does not work on CoreOS due to missing CIFS drivers
-> on CoreOS. The document is left here just as reference for other distros using `systemd`.
+# Ubuntu (systemd) installation instructions
 
-# CoreOS (systemd) Installation Instructions
-
-The following instructions are for CoreOS, however with minor tweaks it can be adopted
-on other distros using systemd as well.
-
-Make sure you have docker-engine v1.10+ installed on your CoreOS image. Older images
-do not support docker volumes as implemented by this volume driver.
+> NOTE: These instructions are valid for Ubuntu versions using `systemd` init
+> system.
 
 Run the following commands:
 
-1. `sudo -s`
-2. `mkdir -p /opt/bin`
-3. Download the binary at `/opt/bin/`: `wget -qO/opt/bin/azurefile-dockervolumedriver [url]`
-4. Make it executable: `chmod +x /opt/bin/azurefile-dockervolumedriver`
-5. Save `.default` file to `/etc/default/azurefile-dockervolumedriver`
-6. Edit `/etc/default/azurefile-dockervolumedriver` with your credentials.
-7. Save `.service` file to `/etc/systemd/system/azurefile-dockervolumedriver.service`
-8. Run `systemctl daemon-reload`
-9. `systemctl enable azurefile-dockervolumedriver` so that it starts automatically next time
-10. Run `systemctl start azurefile-dockervolumedriver`
-11. Check status via `systemctl status azurefile-dockervolumedriver`
+0. `sudo -s`
+0. Download the binary at `/opt/bin/`: `wget -qO/usr/bin/azurefile-dockervolumedriver [url]`
+0. Make it executable: `chmod +x /usr/bin/azurefile-dockervolumedriver`
+0. Save the `.default` file to `/etc/default/azurefile-dockervolumedriver`
+0. Edit `/etc/default/azurefile-dockervolumedriver` with your credentials.
+0. Save the `.service` file to `/etc/systemd/system/azurefile-dockervolumedriver.service`
+0. Run `systemctl daemon-reload`
+0. Run `systemctl enable azurefile-dockervolumedriver`
+0. Run `systemctl start azurefile-dockervolumedriver`
+0. Check status via `systemctl status azurefile-dockervolumedriver`
 
-Try by creating a volume:
+Try by creating a volume and running a container with it:
 
     docker volume create -d azurefile --name myvol -o share=myvol
+    docker run -i -t -v myvol:/data busybox
+    # cd /data
+    # touch a.txt
 
 You can find the logs at `journalctl -fu azurefile-dockervolumedriver`.
-
-
