@@ -1,3 +1,6 @@
+> **IMPORTANT NOTE:** This project does not work on CoreOS due to missing CIFS drivers
+> on CoreOS. The document is left here just as reference for other distros using `systemd`.
+
 # CoreOS (systemd) Installation Instructions
 
 The following instructions are for CoreOS, however with minor tweaks it can be adopted
