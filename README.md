@@ -1,8 +1,8 @@
-# Docker Volume Driver for Azure File Service
+# Docker Volume Driver for Azure File Storage
 
-This is a Docker Volume Driver which uses [Azure Storage File Service][afs]
+This is a Docker Volume Driver which uses [Azure Storage File Storage][afs]
 to mount file shares on the cloud to Docker containers as volumes. It uses network
-file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
+file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Storage.
 
 [![Build Status](https://travis-ci.org/Azure/azurefile-dockervolumedriver.svg?branch=master)](https://travis-ci.org/Azure/azurefile-dockervolumedriver)
 
@@ -12,6 +12,13 @@ file sharing ([SMB/CIFS protocols][smb]) capabilities of Azure File Service.
 - You can share volumes among multiple containers running on different hosts.
 
 ## Usage
+
+Before deploying this plugin, please read articles:
+
+- [Deciding when to use Azure Blobs, Azure Files, or Azure Data Disks](https://msdn.microsoft.com/en-us/library/azure/mt617303.aspx)
+- [Features Not Supported by the Azure File Service](https://msdn.microsoft.com/en-us/library/azure/dn744326.aspx)
+
+and be aware of the limitations and what kind of applications are suitable for storing data on Azure File Service.
 
 ## Installation
 
