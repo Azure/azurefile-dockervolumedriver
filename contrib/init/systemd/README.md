@@ -6,7 +6,7 @@
 Run the following commands:
 
 0. `sudo -s`
-0. Download the binary at `/opt/bin/`: `wget -qO/usr/bin/azurefile-dockervolumedriver [url]`
+0. Download the binary from “Releases” tab of the repo to `/opt/bin/`: `wget -qO/usr/bin/azurefile-dockervolumedriver [url]`
 0. Make it executable: `chmod +x /usr/bin/azurefile-dockervolumedriver`
 0. Save the `.default` file to `/etc/default/azurefile-dockervolumedriver`
 0. Edit `/etc/default/azurefile-dockervolumedriver` with your credentials.
