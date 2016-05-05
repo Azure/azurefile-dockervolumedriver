@@ -3,7 +3,6 @@ language: go
 install:
 - export GO15VENDOREXPERIMENT=1
 before_script:
-- go get -u golang.org/x/tools/cmd/vet
 - go get -u github.com/golang/lint/golint
 go: 1.5
 script:
