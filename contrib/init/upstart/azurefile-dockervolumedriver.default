@@ -9,6 +9,7 @@
 #
 # Additional arguments to executable:
 # AF_OPTS=--debug
+# AZURE_STORAGE_BASE=core.windows.net
 
 AF_ACCOUNT_NAME=youraccount
 AF_ACCOUNT_KEY=yourkey
