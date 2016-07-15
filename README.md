@@ -30,7 +30,7 @@ Please check out the following documentation:
 #### Start volume driver daemon
 
 * Make sure you have a Storage Account on Azure (using Azure CLI or Portal).
-* The server process must be running on the host machine where Docker engine is installed on 
+* The server process must be running on the host machine where Docker engine is installed on
   at all times for volumes to work properly.
 * “cifs-utils” package must be installed on the host system as Azure Files use SMB protocol.
   For Debian/Ubuntu, run the following command on your host:
@@ -38,7 +38,7 @@ Please check out the following documentation:
 $ sudo apt-get install -y cifs-utils
 ```
 
-Please refer to “Installation” section above. If you like to build the binary from source, 
+Please refer to “Installation” section above. If you like to build the binary from source,
 see “Building” section below on how to compile. Once the driver is installed, start it and
 check its status.
 
@@ -66,6 +66,13 @@ $ docker run -it -v $(docker volume create -d azurefile -o share=myshare):/data 
 This will create an Azure File Share named `myshare` (if it does not exist)
 and start a Docker container in which you can use `/data` directory to directly
 read/write from cloud file share location using SMB protocol.
+
+You can specify additional volume options to customize the owner, group, and permissions for
+files and directories. See the `mount.cifs(8)` man page more details on these options.
+
+```shell
+$ docker volume create --name rabbitmq -d azurefile -o share=rabbitmq -o uid=999 -o gid=999 -o filemode=0600 -o dirmode=0755
+```
 
 ## Demo
 
