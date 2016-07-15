@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	recognizedOptions = []string{"share"}
+	recognizedOptions = []string{"share", "filemode", "dirmode", "uid", "gid"}
 )
 
 type volumeMetadata struct {
@@ -21,7 +21,11 @@ type volumeMetadata struct {
 
 // VolumeOptions stores the opts passed to the driver by the docker engine.
 type VolumeOptions struct {
-	Share string `json:"share"`
+	Share    string `json:"share"`
+	FileMode string `json:"filemode"`
+	DirMode  string `json:"dirmode"`
+	UID      string `json:"uid"`
+	GID      string `json:"gid"`
 }
 
 type metadataDriver struct {
@@ -54,7 +58,13 @@ func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error
 
 	return volumeMetadata{
 		Options: VolumeOptions{
-			Share: meta["share"]}}, nil
+			Share:    meta["share"],
+			FileMode: meta["filemode"],
+			DirMode:  meta["dirmode"],
+			UID:      meta["uid"],
+			GID:      meta["gid"],
+		},
+	}, nil
 }
 
 func (m *metadataDriver) Delete(name string) error {
