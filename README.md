@@ -67,11 +67,23 @@ This will create an Azure File Share named `myshare` (if it does not exist)
 and start a Docker container in which you can use `/data` directory to directly
 read/write from cloud file share location using SMB protocol.
 
-You can specify additional volume options to customize the owner, group, and permissions for
-files and directories. See the `mount.cifs(8)` man page more details on these options.
+You can specify additional volume options to customize the owner, group, and permissions for files and directories. See the `mount.cifs(8)` man page more details on these options.
+
+Options available:
+* `uid`
+* `gid`
+* `filemode`
+* `dirmode`
+* `nolock`
 
 ```shell
-$ docker volume create --name rabbitmq -d azurefile -o share=rabbitmq -o uid=999 -o gid=999 -o filemode=0600 -o dirmode=0755
+$ docker volume create -d azurefile \
+  -o share=sharename \
+  -o uid=999 \
+  -o gid=999 \
+  -o filemode=0600 \
+  -o dirmode=0755 \
+  -o nolock=true
 ```
 
 ## Demo
