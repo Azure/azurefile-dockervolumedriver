@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	recognizedOptions = []string{"share", "filemode", "dirmode", "uid", "gid"}
+	recognizedOptions = []string{"share", "filemode", "dirmode", "uid", "gid", "nolock"}
 )
 
 type volumeMetadata struct {
@@ -26,6 +26,7 @@ type VolumeOptions struct {
 	DirMode  string `json:"dirmode"`
 	UID      string `json:"uid"`
 	GID      string `json:"gid"`
+	NoLock   bool   `json:"nolock"`
 }
 
 type metadataDriver struct {
@@ -41,6 +42,7 @@ func newMetadataDriver(metaDir string) (*metadataDriver, error) {
 
 func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error) {
 	var v volumeMetadata
+	var opts VolumeOptions
 
 	// Validate keys
 	for k := range meta {
@@ -55,15 +57,18 @@ func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error
 			return v, fmt.Errorf("not a recognized volume driver option: %q", k)
 		}
 	}
+	opts.Share = meta["share"]
+	opts.DirMode = meta["dirmode"]
+	opts.FileMode = meta["filemode"]
+	opts.GID = meta["gid"]
+	opts.UID = meta["uid"]
+
+	if len(meta["nolock"]) > 0 {
+		opts.NoLock = true
+	}
 
 	return volumeMetadata{
-		Options: VolumeOptions{
-			Share:    meta["share"],
-			FileMode: meta["filemode"],
-			DirMode:  meta["dirmode"],
-			UID:      meta["uid"],
-			GID:      meta["gid"],
-		},
+		Options: opts,
 	}, nil
 }
 
