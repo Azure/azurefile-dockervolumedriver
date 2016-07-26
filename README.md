@@ -69,7 +69,7 @@ read/write from cloud file share location using SMB protocol.
 
 You can specify additional volume options to customize the owner, group, and permissions for files and directories. See the `mount.cifs(8)` man page more details on these options.
 
-Options available:
+Mount Options Available:
 * `uid`
 * `gid`
 * `filemode`

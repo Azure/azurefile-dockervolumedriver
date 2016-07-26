@@ -63,7 +63,7 @@ func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error
 	opts.GID = meta["gid"]
 	opts.UID = meta["uid"]
 
-	if len(meta["nolock"]) > 0 {
+	if meta["nolock"] == "true" {
 		opts.NoLock = true
 	}
 

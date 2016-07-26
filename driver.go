@@ -282,7 +282,6 @@ func (v *volumeDriver) pathForVolume(name string) string {
 }
 
 func mount(accountName, accountKey, mountpoint string, options VolumeOptions) error {
-	var opts []string
 	// Set defaults
 	if len(options.FileMode) == 0 {
 		options.FileMode = "0777"
@@ -297,14 +296,15 @@ func mount(accountName, accountKey, mountpoint string, options VolumeOptions) er
 		options.GID = "0"
 	}
 	mount := fmt.Sprintf("//%s.file.core.windows.net/%s", accountName, options.Share)
-	opts = append(opts, "vers=3.0")
-	opts = append(opts, fmt.Sprintf("username=%s", accountName))
-	opts = append(opts, fmt.Sprintf("password=%s", accountKey))
-	opts = append(opts, fmt.Sprintf("file_mode=%s", options.FileMode))
-	opts = append(opts, fmt.Sprintf("file_mode=%s", options.FileMode))
-	opts = append(opts, fmt.Sprintf("dir_mode=%s", options.DirMode))
-	opts = append(opts, fmt.Sprintf("uid=%s", options.UID))
-	opts = append(opts, fmt.Sprintf("gid=%s", options.GID))
+	opts := []string{
+		"vers=3.0",
+		fmt.Sprintf("username=%s", accountName),
+		fmt.Sprintf("password=%s", accountKey),
+		fmt.Sprintf("file_mode=%s", options.FileMode),
+		fmt.Sprintf("dir_mode=%s", options.DirMode),
+		fmt.Sprintf("uid=%s", options.UID),
+		fmt.Sprintf("gid=%s", options.GID),
+	}
 	if options.NoLock {
 		opts = append(opts, "nolock")
 	}
