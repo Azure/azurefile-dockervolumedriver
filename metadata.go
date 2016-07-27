@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	recognizedOptions = []string{"share"}
+	recognizedOptions = []string{"share", "filemode", "dirmode", "uid", "gid", "nolock"}
 )
 
 type volumeMetadata struct {
@@ -21,7 +21,12 @@ type volumeMetadata struct {
 
 // VolumeOptions stores the opts passed to the driver by the docker engine.
 type VolumeOptions struct {
-	Share string `json:"share"`
+	Share    string `json:"share"`
+	FileMode string `json:"filemode"`
+	DirMode  string `json:"dirmode"`
+	UID      string `json:"uid"`
+	GID      string `json:"gid"`
+	NoLock   bool   `json:"nolock"`
 }
 
 type metadataDriver struct {
@@ -37,6 +42,7 @@ func newMetadataDriver(metaDir string) (*metadataDriver, error) {
 
 func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error) {
 	var v volumeMetadata
+	var opts VolumeOptions
 
 	// Validate keys
 	for k := range meta {
@@ -51,10 +57,19 @@ func (m *metadataDriver) Validate(meta map[string]string) (volumeMetadata, error
 			return v, fmt.Errorf("not a recognized volume driver option: %q", k)
 		}
 	}
+	opts.Share = meta["share"]
+	opts.DirMode = meta["dirmode"]
+	opts.FileMode = meta["filemode"]
+	opts.GID = meta["gid"]
+	opts.UID = meta["uid"]
+
+	if meta["nolock"] == "true" {
+		opts.NoLock = true
+	}
 
 	return volumeMetadata{
-		Options: VolumeOptions{
-			Share: meta["share"]}}, nil
+		Options: opts,
+	}, nil
 }
 
 func (m *metadataDriver) Delete(name string) error {

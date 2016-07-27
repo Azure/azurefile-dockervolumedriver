@@ -133,7 +133,7 @@ func (v *volumeDriver) Mount(req volume.Request) (resp volume.Response) {
 		return
 	}
 
-	if err := mount(v.accountName, v.accountKey, meta.Options.Share, path); err != nil {
+	if err := mount(v.accountName, v.accountKey, path, meta.Options); err != nil {
 		resp.Err = err.Error()
 		logctx.Error(resp.Err)
 		return
@@ -281,12 +281,39 @@ func (v *volumeDriver) pathForVolume(name string) string {
 	return filepath.Join(v.mountpoint, name)
 }
 
-func mount(accountName, accountKey, shareName, mountpoint string) error {
+func mount(accountName, accountKey, mountpoint string, options VolumeOptions) error {
+	// Set defaults
+	if len(options.FileMode) == 0 {
+		options.FileMode = "0777"
+	}
+	if len(options.DirMode) == 0 {
+		options.DirMode = "0777"
+	}
+	if len(options.UID) == 0 {
+		options.UID = "0"
+	}
+	if len(options.GID) == 0 {
+		options.GID = "0"
+	}
+	mount := fmt.Sprintf("//%s.file.core.windows.net/%s", accountName, options.Share)
+	opts := []string{
+		"vers=3.0",
+		fmt.Sprintf("username=%s", accountName),
+		fmt.Sprintf("password=%s", accountKey),
+		fmt.Sprintf("file_mode=%s", options.FileMode),
+		fmt.Sprintf("dir_mode=%s", options.DirMode),
+		fmt.Sprintf("uid=%s", options.UID),
+		fmt.Sprintf("gid=%s", options.GID),
+	}
+	if options.NoLock {
+		opts = append(opts, "nolock")
+	}
+
 	// TODO: replace with mount() syscall using docker/docker/pkg/mount
 	// (currently gives hard-to-debug 'invalid argument' error with the
 	// following arguments, my guess is, mount program does IP resolution
 	// and essentially passes a different set of options to system call).
-	cmd := exec.Command("mount", "-t", "cifs", fmt.Sprintf("//%s.file.core.windows.net/%s", accountName, shareName), mountpoint, "-o", fmt.Sprintf("vers=3.0,username=%s,password=%s,dir_mode=0777,file_mode=0777", accountName, accountKey), "--verbose")
+	cmd := exec.Command("mount", "-t", "cifs", mount, mountpoint, "-o", strings.Join(opts, ","), "--verbose")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("mount failed: %v\noutput=%q", err, out)
