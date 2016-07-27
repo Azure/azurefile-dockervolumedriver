@@ -94,6 +94,12 @@ $ docker volume create -d azurefile \
 ## Changelog
 
 ```
+# 0.3.0 (2016-07-27)
+
+- Fixed systemd unit dependencies (#29)
+- Added options for uid, gid, filemode, dirmode, nolock (#44)
+- Documentation fixes (#39)
+
 # 0.2.1 (2016-03-10)
 - Start unix socket under docker group instead of root.
 
