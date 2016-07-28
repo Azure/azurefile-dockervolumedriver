@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	azure "github.com/Azure/azure-sdk-for-go/storage"
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/docker/go-plugins-helpers/volume"
@@ -32,6 +33,12 @@ func main() {
 			Usage:  "Azure storage account key",
 			EnvVar: "AZURE_STORAGE_ACCOUNT_KEY",
 		},
+		cli.StringFlag{
+			Name:   "storage-base",
+			Usage:  "Base domain for Azure Storage endpoint",
+			EnvVar: "AZURE_STORAGE_BASE",
+			Value:  azure.DefaultBaseURL,
+		},
 		cli.BoolFlag{
 			Name:  "remove-shares",
 			Usage: "remove associated Azure File Share when volume is removed",
@@ -59,6 +66,7 @@ func main() {
 
 		accountName := c.String("account-name")
 		accountKey := c.String("account-key")
+		storageBase := c.String("storage-base")
 		mountpoint := c.String("mountpoint")
 		metaDir := c.String("metadata")
 		removeShares := c.Bool("remove-shares")
@@ -73,7 +81,7 @@ func main() {
 			"removeShares": removeShares,
 		}).Debug("Starting server.")
 
-		driver, err := newVolumeDriver(accountName, accountKey, mountpoint, metaDir, removeShares)
+		driver, err := newVolumeDriver(accountName, accountKey, storageBase, mountpoint, metaDir, removeShares)
 		if err != nil {
 			log.Fatal(err)
 		}

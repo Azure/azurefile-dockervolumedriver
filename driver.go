@@ -21,12 +21,13 @@ type volumeDriver struct {
 	meta         *metadataDriver
 	accountName  string
 	accountKey   string
+	storageBase  string
 	mountpoint   string
 	removeShares bool
 }
 
-func newVolumeDriver(accountName, accountKey, mountpoint, metadataRoot string, removeShares bool) (*volumeDriver, error) {
-	storageClient, err := azure.NewBasicClient(accountName, accountKey)
+func newVolumeDriver(accountName, accountKey, storageBase, mountpoint, metadataRoot string, removeShares bool) (*volumeDriver, error) {
+	storageClient, err := azure.NewClient(accountName, accountKey, storageBase, azure.DefaultAPIVersion, true)
 	if err != nil {
 		return nil, fmt.Errorf("error creating azure client: %v", err)
 	}
@@ -39,6 +40,7 @@ func newVolumeDriver(accountName, accountKey, mountpoint, metadataRoot string, r
 		meta:         metaDriver,
 		accountName:  accountName,
 		accountKey:   accountKey,
+		storageBase:  storageBase,
 		mountpoint:   mountpoint,
 		removeShares: removeShares,
 	}, nil
@@ -133,7 +135,7 @@ func (v *volumeDriver) Mount(req volume.Request) (resp volume.Response) {
 		return
 	}
 
-	if err := mount(v.accountName, v.accountKey, path, meta.Options); err != nil {
+	if err := mount(v.accountName, v.accountKey, v.storageBase, path, meta.Options); err != nil {
 		resp.Err = err.Error()
 		logctx.Error(resp.Err)
 		return
@@ -281,7 +283,7 @@ func (v *volumeDriver) pathForVolume(name string) string {
 	return filepath.Join(v.mountpoint, name)
 }
 
-func mount(accountName, accountKey, mountpoint string, options VolumeOptions) error {
+func mount(accountName, accountKey, shareName, storageBase string, options VolumeOptions) error {
 	// Set defaults
 	if len(options.FileMode) == 0 {
 		options.FileMode = "0777"
@@ -295,7 +297,7 @@ func mount(accountName, accountKey, mountpoint string, options VolumeOptions) er
 	if len(options.GID) == 0 {
 		options.GID = "0"
 	}
-	mount := fmt.Sprintf("//%s.file.core.windows.net/%s", accountName, options.Share)
+	mount := fmt.Sprintf("//%s.file.%s/%s", accountName, storageBase, options.Share)
 	opts := []string{
 		"vers=3.0",
 		fmt.Sprintf("username=%s", accountName),
