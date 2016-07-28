@@ -94,8 +94,10 @@ $ docker volume create -d azurefile \
 ## Changelog
 
 ```
-# 0.3.0 (2016-07-27)
+# 0.4.0 (2016-07-28)
+- Added support for foreign Azure clouds (#43, #41)
 
+# 0.3.0 (2016-07-27)
 - Fixed systemd unit dependencies (#29)
 - Added options for uid, gid, filemode, dirmode, nolock (#44)
 - Documentation fixes (#39)
