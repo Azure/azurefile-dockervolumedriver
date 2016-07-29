@@ -298,6 +298,13 @@ func mount(accountName, accountKey, storageBase, mountPath string, options Volum
 		options.GID = "0"
 	}
 	mountURI := fmt.Sprintf("//%s.file.%s/%s", accountName, storageBase, options.Share)
+        if len(options.RemotePath) != 0 {
+		if options.RemotePath[0] != '/' {
+			mountURI += "/"
+		}
+	mountURI += options.RemotePath
+        }
+
 	opts := []string{
 		"vers=3.0",
 		fmt.Sprintf("username=%s", accountName),
