@@ -94,6 +94,9 @@ $ docker volume create -d azurefile \
 ## Changelog
 
 ```
+# 0.4.1 (2016-08-02)
+- Bugfix: wrong mount path was passed to mount command (#47, #48)
+
 # 0.4.0 (2016-07-28)
 - Added support for foreign Azure clouds (#43, #41)
 
