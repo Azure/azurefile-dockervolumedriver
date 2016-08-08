@@ -75,6 +75,7 @@ Mount Options Available:
 * `filemode`
 * `dirmode`
 * `nolock`
+* `remotepath`
 
 ```shell
 $ docker volume create -d azurefile \
@@ -83,7 +84,8 @@ $ docker volume create -d azurefile \
   -o gid=999 \
   -o filemode=0600 \
   -o dirmode=0755 \
-  -o nolock=true
+  -o nolock=true \
+  -o remotepath=directory
 ```
 
 ## Demo
