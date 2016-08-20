@@ -10,7 +10,7 @@ script:
 - test -z "$(golint . |  tee /dev/stderr)"
 - go vet .
 - GOOS=linux GOARCH=amd64 go build -v -o bin/azurefile-dockervolumedriver .
-- go test -v .
+- go list ./... | grep -v '/vendor/' | xargs go test -v
 deploy:
   provider: releases
   api_key:
