@@ -47,6 +47,11 @@ func newVolumeDriver(accountName, accountKey, storageBase, mountpoint, metadataR
 	}, nil
 }
 
+func (v *volumeDriver) Capabilities(req volume.Request) (resp volume.Response) {
+	resp.Capabilities = volume.Capability{Scope: "local"}
+	return
+}
+
 func (v *volumeDriver) Create(req volume.Request) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
@@ -106,7 +111,7 @@ func (v *volumeDriver) Path(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *volumeDriver) Mount(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Mount(req volume.MountRequest) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
@@ -145,7 +150,7 @@ func (v *volumeDriver) Mount(req volume.Request) (resp volume.Response) {
 	return
 }
 
-func (v *volumeDriver) Unmount(req volume.Request) (resp volume.Response) {
+func (v *volumeDriver) Unmount(req volume.UnmountRequest) (resp volume.Response) {
 	v.m.Lock()
 	defer v.m.Unlock()
 
