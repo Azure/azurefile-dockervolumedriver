@@ -4,12 +4,13 @@ install:
 - export GO15VENDOREXPERIMENT=1
 before_script:
 - go get -u github.com/golang/lint/golint
-go: 1.5
+- go get -u github.com/ahmetalpbalkan/govvv
+go: 1.7
 script:
 - test -z "$(gofmt -s -l -w . | tee /dev/stderr)"
 - test -z "$(golint . |  tee /dev/stderr)"
 - go vet .
-- GOOS=linux GOARCH=amd64 go build -v -o bin/azurefile-dockervolumedriver .
+- GOOS=linux GOARCH=amd64 govvv build -v -o bin/azurefile-dockervolumedriver .
 - go list ./... | grep -v '/vendor/' | xargs go test -v
 deploy:
   provider: releases
