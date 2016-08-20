@@ -15,10 +15,17 @@ const (
 	metadataRoot     = "/etc/docker/plugins/azurefile/volumes"
 )
 
+var (
+	// GitSummary is provided at compile-time when built with govvv.
+	// If the source tree corresponds to a tag, the tag name is used.
+	// Otherwise, provides a string summarizing the state of git tree.
+	GitSummary string
+)
+
 func main() {
 	cmd := cli.NewApp()
 	cmd.Name = "azurefile-dockervolumedriver"
-	cmd.Version = "0.2.1"
+	cmd.Version = GitSummary
 	cmd.Usage = "Docker Volume Driver for Azure File Service"
 	cli.AppHelpTemplate = usageTemplate
 
