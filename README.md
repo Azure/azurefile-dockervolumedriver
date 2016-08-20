@@ -96,6 +96,11 @@ $ docker volume create -d azurefile \
 ## Changelog
 
 ```
+# 0.5.0(2016-08-19)
+- Added volume option 'remotepath' (#46)
+- Upgraded plugin protocol for docker 1.12.0 (#57)
+- Fixed stale version string in --help (#58)
+
 # 0.4.1 (2016-08-02)
 - Bugfix: wrong mount path was passed to mount command (#47, #48)
 
