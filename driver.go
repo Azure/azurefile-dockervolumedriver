@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -305,7 +304,7 @@ func mount(accountName, accountKey, storageBase, mountPath string, options Volum
 	}
 	mountURI := fmt.Sprintf("//%s.file.%s/%s", accountName, storageBase, options.Share)
 	if len(options.RemotePath) != 0 {
-		mountURI = path.Join(mountURI, options.RemotePath)
+		mountURI += fmt.Sprintf("/%s", strings.TrimPrefix(options.RemotePath, "/"))
 	}
 
 	opts := []string{

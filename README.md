@@ -96,7 +96,10 @@ $ docker volume create -d azurefile \
 ## Changelog
 
 ```
-# 0.5.0(2016-08-19)
+# 0.5.1 (2016-09-16)
+- Bugfix: "bad UNC" error for remotepath (#63)
+
+# 0.5.0 (2016-08-19)
 - Added volume option 'remotepath' (#46)
 - Upgraded plugin protocol for docker 1.12.0 (#57)
 - Fixed stale version string in --help (#58)
