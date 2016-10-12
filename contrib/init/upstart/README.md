@@ -49,3 +49,6 @@ write to the Azure File Service share.
     # cd /data
     # touch file.txt
 
+### Troubleshooting
+
+If you have any problems logging should end up in `/var/log/upstart/azurefile-dockervolumedriver.log`
