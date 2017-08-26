@@ -141,13 +141,13 @@ $ git clone https://github.com/Azure/azurefile-dockervolumedriver src/azurefile
 $ export GOPATH=`pwd`
 $ cd src/azurefile
 $ go build
-$ ./azurefile-dockervolumedriver -h
+$ ./azurefile -h
 ```
 
 Once you have the binary compiled you can start it as follows:
 
 ```shell
-$ sudo ./azurefile-dockervolumedriver \
+$ sudo ./azurefile \
   --account-name <AzureStorageAccount> \
   --account-key  <AzureStorageAccountKey> &
 ```
