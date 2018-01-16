@@ -1,3 +1,14 @@
+# DEPRECATION NOTICE
+
+Please note this driver is no longer supported and will not be
+maintained moving forwards. We recommend users use CloudStor
+for
+[Docker native solutions](https://docs.docker.com/docker-for-azure/persistent-data-volumes/)..
+
+
+
+
+
 # Docker Volume Driver for Azure File Storage
 
 This is a Docker Volume Driver which uses [Azure Storage File Storage][afs]
